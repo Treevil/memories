@@ -1,0 +1,4 @@
+CPU 8 25
+Memory-slot 4096 1
+GPU 6 50
+Rete 2048 2
