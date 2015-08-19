@@ -2,24 +2,26 @@
 
 int main(int argc, char const *argv[])
 {
-    resource risorse[MAX_RIS];//max n risorse per ogni cliente
-	int budget, num_ris,i;
+    resource resource[MAX_CLIENT_R];//max n risorse per ogni cliente
+	int budget, num_res,i;
+	int n[MAX_CLIENT_R];
+
 
 	//lettura risorse
-	if(client_load_resource(argv[1],risorse,&budget,&num_ris)<0)
+	if(client_load_resource(argv[1],resource,&budget,&num_res)<0)
 	{
-		perror("Error while opening the file...");
+		perror("Error while the client is opening the file...");
 		exit(EXIT_FAILURE);
 	}
 	
 	//stampa risorse
-	printf("Ho %d€ e devo comprare:\n",budget);
-	stampa_risorse_client(risorse,num_ris);
+	printf("I have %d € and I have to buy:\n",budget);
+	print_client_resource(resource,num_res);
 
 
 	int key;
 
-	for(i=0;i<MAX_RIS;i++)
+	for(i=0;i<MAX_CLIENT_R;i++)
 		n[i]=0;
 
 	if((key=ftok("banditore.c", 'G')) == -1)

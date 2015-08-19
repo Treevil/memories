@@ -21,8 +21,8 @@
 	#define TAO_LAST 15
 #endif
 //numero massimo di risorse per cliente
-#ifndef MAX_RIS
-	#define MAX_RIS 10 	
+#ifndef MAX_CLIENT_R
+	#define MAX_CLIENT_R 10 	
 #endif
 //tipo per le richieste di risorse da cliente a banditore
 #ifndef RES_REQ_TYPE
@@ -87,11 +87,32 @@ typedef struct resource
 	int price;
 } resource;
 
+/*
+2 - Structure for data passagge between 
+	Banditore/Client and Client/Banditore 
+*/
+typedef struct msg1
+{
+	long type;
+	int pid;
+	int num_res;
+	resource data[MAX_CLIENT_R];
+}msg1;
+
+typedef struct request
+{
+	int pid_applicant;
+	resource resource[MAX_CLIENT_R];
+	int num_res;
+}request;
+
 
 // Prototypes
 
 int band_load_resource(const char*,resource risorse[],int*);
 void printTAO_resources(resource arr[],int n);
+int client_load_resource(const char*,resource risorse[],int*,int*);
+void print_client_resource(resource arr[],int);
 
 
 

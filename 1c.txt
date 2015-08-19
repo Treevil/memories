@@ -1,0 +1,4 @@
+2000
+CPU 4
+Memory-slot 1024
+GPU 2
