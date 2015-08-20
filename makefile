@@ -8,3 +8,4 @@ client: header.c client.c
  
 clean:
 	rm -f *.o
+	

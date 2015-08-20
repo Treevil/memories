@@ -72,6 +72,10 @@
 	#include <signal.h>
 	#define __SIGNAL_H__
 #endif
+#define SHMKEY 1554
+#define SEMKEY 1555
+#define TAO_S 0
+
 
 /*
 Data structures 
@@ -80,7 +84,7 @@ Data structures
 1 - Resource
 */
 
-typedef struct resource
+typedef struct
 {
 	char name[20];
 	int quantity;
@@ -91,7 +95,7 @@ typedef struct resource
 2 - Structure for data passagge between 
 	Banditore/Client and Client/Banditore 
 */
-typedef struct msg1
+typedef struct
 {
 	long type;
 	int pid;
@@ -99,12 +103,41 @@ typedef struct msg1
 	resource data[MAX_CLIENT_R];
 }msg1;
 
-typedef struct request
+
+/*
+
+3 - da banditore a cliente
+struttura messaggio per la connessione ai tavoli delle offerte
+*/
+typedef struct
+{
+	long type;
+	int shm_key;
+	int smp_key;
+	resource res;
+}msg2;
+
+/*
+4 - Structure for request
+*/
+
+typedef struct
 {
 	int pid_applicant;
 	resource resource[MAX_CLIENT_R];
 	int num_res;
 }request;
+
+/*
+5 - Strcutre for offer
+*/
+
+typedef struct
+{
+	int pid_offer;
+	int quantity;
+	int prize_each;
+}offer;
 
 
 // Prototypes
@@ -113,8 +146,15 @@ int band_load_resource(const char*,resource risorse[],int*);
 void printTAO_resources(resource arr[],int n);
 int client_load_resource(const char*,resource risorse[],int*,int*);
 void print_client_resource(resource arr[],int);
-
-
-
-
+int new_sharedMemory(int key);
+int new_semaphore(int key);
+int alert_clients(int queue,int shm,int sem,request ric[],
+						int num_req,resource res);
+int P(int semid, int semnum);
+int V(int semid, int semnum);
+int max_of(offer *o);
+void deallocate_tao(int shmid);
+void deallocate_semaphore(int semid);
+void deallocate_queue(int qid);
+void print_tao(offer *o);
 
