@@ -157,4 +157,5 @@ void deallocate_tao(int shmid);
 void deallocate_semaphore(int semid);
 void deallocate_queue(int qid);
 void print_tao(offer *o);
+int contains(resource ris_ric[],int num_ris,char ris[]);
 

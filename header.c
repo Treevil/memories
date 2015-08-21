@@ -143,7 +143,9 @@ int alert_clients(int queue,int shm,int sem,request req[],
 			m1.smp_key=sem;
 			m1.res=res;
 			trial=0;
+			printf("Il messaggio contiene id : %lu, shm: %d, smp: %d" , m1.type,&m1.shm_key,&m1.smp_key); 
 			/* ALERT: WHY While? */
+			//messo if
 			while(msgsnd(queue,&m1,sizeof(msg2)-sizeof(long),0)==-1)
 			{
 				if(trial==MAX_CLIENT)
@@ -217,14 +219,16 @@ int max_of(offer *o)
 	return j;
 }
 
-
 int contains(resource ris_ric[],int num_ris,char ris[])
 {
 	int i;
 	for(i=0;i<num_ris;i++)
 	{
+		// tolto ! ad inizio if
 		if(!strcmp(ris_ric[i].name,ris))
-			return 0;
+			// aggiunto printf per controllo
+			printf("Le risorse non coincidono");
+			return -1;
 	}
 	return 0;
 }

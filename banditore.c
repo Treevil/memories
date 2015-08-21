@@ -8,9 +8,12 @@ File: Banditore
 #include "header.h"
 
 
+
 int main(int argc, char const *argv[])
 {
     printf("Banditore Started...\n\n\n");
+
+
     //max n resource each client 
     resource band_resources[MAX_CLIENT_R*MAX_CLIENT];
     int num_resources = 0;
@@ -45,7 +48,7 @@ int main(int argc, char const *argv[])
     getchar();
     printf("Banditore in attesa di richieste...\n");
 
-
+//---
 
     msg1 m1;
     request req[MAX_CLIENT];
@@ -108,6 +111,18 @@ int main(int argc, char const *argv[])
     }
 
     //ALERT: Inizio for della morte
+
+
+    for (int i = 0; i < MAX_CLIENT; i++) {
+        printf("La req.pid [%d] contiene %d \n", i, req[i].pid_applicant);
+        printf("La req.num_res [%d] contiene %d \n", i, req[i].num_res);  
+        if (i == 0)
+            for(int j=0; j < req[0].num_res; j++){
+                printf("\tLe risorsa [j]: %s \n",  req[0].resource[j].name);
+                printf("\tLe risorsa [j]: %d \n",  req[0].resource[j].quantity); 
+                printf("\tLe risorsa [j]: %d \n",  req[0].resource[j].price);
+            }    
+    }
 
     for(int i=0;i<num_resources;i++)
     {
@@ -304,8 +319,6 @@ int main(int argc, char const *argv[])
     deallocate_queue(qid);
     qid=0;
     exit(EXIT_SUCCESS);
-    return 0;
-
     return 0;
 }
 
