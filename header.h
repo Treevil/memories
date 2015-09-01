@@ -154,9 +154,11 @@ typedef struct
 */
 
 
-int load_resource(const char* file_name, resource data[], int* length);
+int load_resource(const char* file_name, resource data[], int* length, int flag);
 int new_sharedmemory(int key);
 int new_semaphore(int key);
 int ipc_key_creation();
 void detach_semaphore(int id_sem);
 void detach_sharedMemory(int id_shm);
+void V(int semid, int semnum);
+void P(int semid, int semnum);

@@ -1,3 +1,21 @@
+/*
+Specifications:
+The process customer reads files from resources that must acquire and their quantity.
+The file also shows the budget available to the customer.
+At startup, the process registers itself to Auctioneer by sending a message containing 
+its pid and a list of resources is concerned. The customer waits for the Auctioneer will 
+inform it of the opening of a TAO for a resource of interest.  Upon receiving this message, 
+the client initiates a process agent who will actually make the offer.
+Started the Agent, the customer back waiting for a new message from the Auctioneer.
+If the message sent by the Auctioneer inform it of the acquisition of an asset, 
+the gambler will write a log file after him acquired the resource, the amount
+and the total cost.
+
+@Author: Devalle Trevor
+*/
+
+
+
 #include "header.h"
 
 int queue_attachment();
@@ -19,12 +37,12 @@ int main(int argc, char const *argv[])
   int num_rsc_wished, id_queue, i;
 
   int pid_process;
-
+  int gambler_budget = 2000;
   printf("\t\t*****************\n\t\t*   Gambler     *\n\t\t***************"
           "**\n\n\n\n");
   printf("My ID is°: %d\n", getpid() );
-
-  load_resource(argv[1],rsc_wished, &num_rsc_wished);
+  // TODO: Set flag == 0
+  load_resource(argv[1],rsc_wished, &num_rsc_wished, 1);
   printf("I want the following resource:\n ");
   for(i=0; i < num_rsc_wished; i++)
     printf("-> %d %s for %d € each\n", rsc_wished[i].quantity, rsc_wished[i].name, rsc_wished[i].price);
@@ -35,7 +53,7 @@ int main(int argc, char const *argv[])
   printf("Waiting for TAO...\n");
   msg_alert m2;
   for (i = 0; i < num_rsc_wished; i++) {
-    int rd_bytes = msgrcv(id_queue, &m2, sizeof(msg_alert) - sizeof(long), getpid(), 0);
+    long rd_bytes = msgrcv(id_queue, &m2, sizeof(msg_alert) - sizeof(long), getpid(), 0);
     if (rd_bytes>0){
       if (m2.key_shm){
         pid_process = fork();
@@ -44,14 +62,23 @@ int main(int argc, char const *argv[])
           exit(EXIT_FAILURE);
         }
         else if(!pid_process){
-          char id_shma[10], id_smpa[10];
-          sprintf(id_shma,"%d",m2.key_shm);
-          sprintf(id_smpa,"%d",m2.key_smp);
+          char id_shma[10], id_smpa[10], rsc_min_price[10],
+            quantity[10], budget[10], id_queuea[10];
+          sprintf(id_shma,"%d", m2.key_shm);
+          sprintf(id_smpa,"%d", m2.key_smp);
+          sprintf(rsc_min_price,"%d", m2.resource.price);
+          sprintf(quantity,"%d", rsc_wished[i].quantity);
+          sprintf(budget,"%d", gambler_budget / num_rsc_wished);
+          sprintf(id_queuea,"%d", id_queue);
           char* arg[] = {
                           "agent.out",
                           m2.resource.name,
                           id_shma,
                           id_smpa,
+                          rsc_min_price,
+                          quantity,
+                          budget,
+                          id_queuea,
                           NULL
                         };
           execve(arg[0], arg, NULL);
@@ -76,6 +103,29 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
   }
+  // Aspettare il messaggio di Vittoria
+ /* rsc_msg recived_msg;
+       long rcv_bytes = msgrcv(id_queue, &recived_msg, 
+        sizeof(rsc_msg) - sizeof(long), RES_REQ_TYPE, 0);
+      if(rcv_bytes > 0)
+      {
+        printf("I got: \n");
+      }
+      else if(errno == ENOMSG)
+      {
+          perror("No victories message ");
+      }
+      else if(errno == EINVAL || errno == EIDRM)
+      {
+          perror("The queue doesn't exit or removed unexpectedly. ");
+          exit(EXIT_FAILURE);
+      }
+      else
+      {
+          perror("Unexpected error on msgrcv.");
+          exit(EXIT_FAILURE);
+      }
+*/
 }
 
 

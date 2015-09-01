@@ -1,7 +1,7 @@
 // utility.c
 #include "header.h"
 
-int P(int semid, int semnum)
+void P(int semid, int semnum)
 {
 	struct sembuf cmd;
 	cmd.sem_num = semnum;
@@ -13,7 +13,7 @@ int P(int semid, int semnum)
 	}
 }
 
-int V(int semid, int semnum)
+void V(int semid, int semnum)
 {
 	struct sembuf cmd;
 	cmd.sem_num = semnum;
@@ -31,24 +31,28 @@ int V(int semid, int semnum)
 Get data from file_name file and fill the resource data 
 structure.
 */
-int load_resource(const char* file_name, resource data[], int* length)
+int load_resource(const char* file_name, resource data[], int* length, int flag)
 {
 	// Open the file
+	int budget;
 	printf("Loading Resource....  ");
 	FILE *fp = fopen(file_name, "r");
 	if(!fp) //if something goes wrong...
 	{
-		printf("FAIL \n");
 		perror("Error while opening the file. Resource cannot be loaded.\n");
 		return -1;
 	}
-
+	if (flag == 0){
+		//leggi budget in prima riga		
+		fscanf(fp,"%d", &budget);
+	}
 	// Load data
 	*length=0;
 	while(fscanf(fp,"%s",data[*length].name)!=EOF)
-	{		
-		fscanf(fp,"%d",&(data[*length].quantity));
+	{
 		fscanf(fp,"%d",&(data[*length].price));
+		if (flag == 1)		
+			fscanf(fp,"%d",&(data[*length].quantity));
 		fgetc(fp);
 		(*length)++;
 	}
@@ -67,7 +71,7 @@ int load_resource(const char* file_name, resource data[], int* length)
 int ipc_key_creation(){
 	int IPC_Key;
 	printf("Creation IPC Key... ");
-    if((IPC_Key = ftok("rgs1.c", 'G')) == -1)
+    if((IPC_Key = ftok("auctioneer.c", 'G')) == -1)
     {
         perror("FAIL. Error on ftok...");
         exit(EXIT_FAILURE);
@@ -95,7 +99,7 @@ int new_sharedmemory(int key)
 	}
 	/* 3 - inizializzazione*/
 	int i;
-	for(i=0; i<MAX_BET; i++)
+	for(i=0; i < MAX_BET; i++)
 	{
 		(o+i)->pid_gambler = -1;
 		(o+i)->quantity = 0;
@@ -132,6 +136,7 @@ int new_semaphore(int key)
 
 void detach_sharedMemory(int id_shm)
 {
+
   if (shmctl(id_shm, IPC_RMID, NULL) == -1)
   {
     perror("Error while removing shared memory...");
