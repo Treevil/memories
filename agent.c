@@ -51,7 +51,6 @@ int main(int argc, char* argv[])
 	int i, j;
 	// am I the first?
 	if((o + 0) -> pid_gambler != getppid()) {
-		printf("Im in!");
 		// Have I enough budget?
 		if ( budget > (o + 0)->price_each) {
 			// Do I have already done a bet? If so, delete it!
@@ -72,28 +71,28 @@ int main(int argc, char* argv[])
 					(o + MAX_BET)->quantity = 0;
 					(o + MAX_BET)->price_each = 0;
 				}
-				// Add new entry
-				for (i = 0; i < MAX_BET; i++){
-					temp[i].pid_gambler = (o + i)->pid_gambler;
-					temp[i].quantity = (o + i)->quantity;
-					temp[i].price_each = (o + i)->price_each;
-				}
+			}
+			// Add new entry
+			for (i = 0; i < MAX_BET; i++){
+				temp[i].pid_gambler = (o + i)->pid_gambler;
+				temp[i].quantity = (o + i)->quantity;
+				temp[i].price_each = (o + i)->price_each;
+			}
 
-				for (i = 0; i < MAX_BET - 1; i++){
-					(o + i + 1)->pid_gambler = temp[i].pid_gambler ;
-					(o + i + 1)->quantity = temp[i].quantity ;
-					(o + i + 1)->price_each = temp[i].price_each;
-				}
-				(o + 0)->pid_gambler = getppid();
-				(o + 0)->quantity = quantity;
-				
-				if ((o + 0)->price_each == 0)
-					(o + 0)->price_each	 = min_price;
-				else
-					(o + 0)->price_each	 = (o + 0)->price_each + 1;
+			for (i = 0; i < MAX_BET - 1; i++){
+				(o + i + 1)->pid_gambler = temp[i].pid_gambler ;
+				(o + i + 1)->quantity = temp[i].quantity ;
+				(o + i + 1)->price_each = temp[i].price_each;
+			}
+			(o + 0)->pid_gambler = getppid();
+			(o + 0)->quantity = quantity;
+
+			if ((o + 0)->price_each == 0)
+				(o + 0)->price_each	 = min_price;
+			else
+				(o + 0)->price_each	 = (o + 0)->price_each + 1;
 			}
 		}
-	}
    V(id_sem, 0);
    // TODO: Wait Killer Message()
 	exit(EXIT_SUCCESS);

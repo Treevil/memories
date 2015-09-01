@@ -163,15 +163,17 @@ int main(int argc, char const *argv[])
     }
 
     sleep(2);
+    
     printf("\n\nSend victories message...\n\n");
+    //send_victory(id_queue, rsc_owned, num_rsc_owned);
     printf("Done\n");
     // TODO:
     // Mandare ad ogni processo le vincite
-    //send_victory(id_queue, rsc_owned, num_rsc_owned);
+
     sleep(3);
     queue_remove(id_queue);
 
-    printf("\n\nEnd ;)");
+    printf("\n\nEnd ;)\n");
 
   return 0;
 
