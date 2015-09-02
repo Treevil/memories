@@ -54,6 +54,8 @@ void wish_sort(resource rsc_owned[], int num_rsc_owned,
   sorted_wish sorted_rsc);*/
 void getwinners(int id_shm, int id_sem, bet winners[]);
 void log_winners(bet winners[], int num_rsc_owned, char file_name[]);
+void get_victory(resource rsc_owned[], int num_rsc_owned, wish gambler_wish[],
+  int num_gambler_wish);
 
 int main(int argc, char const *argv[])
 {
@@ -129,12 +131,13 @@ int main(int argc, char const *argv[])
           printf("Messages sended!\n");
         }
 
-        sleep(3 + sorted_rsc[i].num_gambler);
+        //TODO:sleep(3 + sorted_rsc[i].num_gambler);
+        sleep(1);
         
         getwinners(id_shm[i], id_smp[i], winners);
         
         
-
+        // TODO: Send Killer Message to Agents
         printf("Removing %s shared memory... ", sorted_rsc[i].resource);
         P(id_smp[i], 0);
         detach_sharedMemory(id_shm[i]);
@@ -162,15 +165,23 @@ int main(int argc, char const *argv[])
       wait(NULL);
     }
 
-    sleep(2);
-    
     printf("\n\nSend victories message...\n\n");
-    //send_victory(id_queue, rsc_owned, num_rsc_owned);
+    get_victory(rsc_owned, num_rsc_owned, gambler_wish, num_gambler_wish);
+
     printf("Done\n");
     // TODO:
     // Mandare ad ogni processo le vincite
+    printf("Start DEBUG:\n");
+    printf("%d\n", num_rsc_owned);
+    
+    for(i = 0; i < num_gambler_wish; i++) {
+      printf("PID: %d\n", gambler_wish[i].pid_gambler );
+      printf("Numer of Resource: %d\n", gambler_wish[i].num_resource);
+      for(int j = 0; j < gambler_wish[i].num_resource; j++)
+            printf("-> %d %s for %d€ each\n",gambler_wish[i].resource[j].quantity, gambler_wish[i].resource[j].name, gambler_wish[i].resource[j].price);
+      
+    }
 
-    sleep(3);
     queue_remove(id_queue);
 
     printf("\n\nEnd ;)\n");
@@ -314,6 +325,8 @@ void agent_stop(int id_queue, wish gambler_wish,
       }
     }
 }
+*/
+
 /*
   Init the data structure to the value saved
   into the shared memory
@@ -363,62 +376,71 @@ void log_winners(bet winners[], int num_rsc_owned, char file_name[]) {
 
 }
 
-/*
-int send_victory(int id_queue, resource rsc_wished[], int num_rsc_wished) {
-  int i, j, length;
-  FILE *f[MAX_RSC_GAMBLER];
-  wish logs[MAX_GAMBLER];  
-  int pids[MAX_GAMBLER], quantity[MAX_GAMBLER], price[MAX_GAMBLER]; 
+void get_victory(resource rsc_owned[], int num_rsc_owned, wish gambler_wish[],
+  int num_gambler_wish) {
+  int i, j, k, m, row, length;
+  FILE *f;
+  int logs[MAX_RSC_GAMBLER][MAX_GAMBLER][3];  
+
+  // Get data from the log file. 
   for (i = 0; i < num_rsc_owned; i++){
-    if(!f[i] = fopen(strcat(rsc_owned[i],".log"), "w")) //if something goes wrong...
+    f = fopen(strcat(rsc_owned[i].name,".log"), "r");
+    if(!f)
     {
       perror("Error while opening the file. Log cannot be created.\n");
-      return -1; 
+      exit(EXIT_FAILURE); 
     }
 
     length = 0;
-    while(fscanf(f,"%d", &pids[length])!=EOF)
+    row = 0;
+    while(fscanf(f,"%d", &logs[i][length][row]) != EOF)
     {
-      fscanf(f,"%d", &quantity[length]);    
-      fscanf(f,"%d", &price[length]);
+      row++;
+      fscanf(f,"%d", &logs[i][length][row]);
+      row++;
+      fscanf(f,"%d", &logs[i][length][row]); 
       fgetc(f);
+      row = 0;
       length++;
     }
 
-    for (m = 0; m < num_gambler_wish ; m++) {
-      for (j = 0; j < length; j++)
-        if (pid[j] == gambler_wish[m].pid_gambler) {
-            wish_rsc_index = 0;
-            while (wish_rsc_index < gambler_wish[m].num_resource) {
-              if(!strcmp(rsc_owned[i], gambler_wish[m].resource[wish_rsc_index].name)) {
-                gambler_wish[m].resource[wish_rsc_index].quantity = quantity;
-                gambler_wish[m].resource[wish_rsc_index].price = price;
+
+    fclose(f);
+  printf("Iteratori: risorse: %d, gamblers: %d, righe_log: %d\n",
+   num_rsc_owned, num_gambler_wish, length);
+  for (j = 0; j < num_rsc_owned; j++){
+    for (m = 0; m < num_gambler_wish; m++ ){
+      for (k = 0; k < 3; k++) {
+        printf("(%d, %d, %d): %d \n", j, m, k, logs[j][m][k]);
+      }
+    }
+  }
+    for (j = 0; j < length; j++) {
+      for (m = 0; m < num_gambler_wish; m++){
+        if (logs[i][j][0] == gambler_wish[m].pid_gambler) {
+          for (k = 0; k < gambler_wish[m].num_resource; k++) {
+            if (strcmp(gambler_wish[m].resource[k].name, rsc_owned[i].name)) {
+              printf("Quantità: %d\n", rsc_owned[i].quantity);
+              if (rsc_owned[i].quantity >=  logs[i][j][1]) {
+                rsc_owned[i].quantity -= logs[i][j][1];
+                gambler_wish[m].resource[k].quantity = logs[i][j][1];
+                gambler_wish[m].resource[k].price = logs[i][j][2];
+              } else if (rsc_owned[i].quantity > 0) {
+                gambler_wish[m].resource[k].quantity = rsc_owned[i].quantity;
+                gambler_wish[m].resource[k].price = logs[i][j][2];
+                rsc_owned[i].quantity = 0;
+              } else  {
+                gambler_wish[m].resource[k].quantity = 0;
+                gambler_wish[m].resource[k].price = 0;
               }
             }
+          }
         }
+      }
     }
-
-  }
-
-
-  rsc_msg msg_request;
-  msg_request.type = RES_REQ_TYPE;
-  msg_request.pid = getpid();
-  msg_request.num_resource = num_rsc_wished;
-  for (i = 0; i < num_rsc_wished; i++)
-    msg_request.data[i] = rsc_wished[i];
-
-  //invia messaggio con le risorse
-  printf("Send registration message... ");
-  while(msgsnd(id_queue, &msg_request, sizeof(rsc_msg) - sizeof(long), 0)==-1)
-  {
-    perror("Trying to send registration message... \n");
-    sleep(1);
-  }
-  printf("Done!\n");
+  } 
 }
 
-*/
 
 
 

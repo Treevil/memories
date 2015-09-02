@@ -20,6 +20,7 @@ and the total cost.
 
 int queue_attachment();
 int send_registration(int id_queue, resource rsc_wished[], int num_rsc_wished);
+void rcvmsg_victory(int id_queue);
 
 int main(int argc, char const *argv[])
 {
@@ -103,29 +104,10 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
   }
-  // Aspettare il messaggio di Vittoria
- /* rsc_msg recived_msg;
-       long rcv_bytes = msgrcv(id_queue, &recived_msg, 
-        sizeof(rsc_msg) - sizeof(long), RES_REQ_TYPE, 0);
-      if(rcv_bytes > 0)
-      {
-        printf("I got: \n");
-      }
-      else if(errno == ENOMSG)
-      {
-          perror("No victories message ");
-      }
-      else if(errno == EINVAL || errno == EIDRM)
-      {
-          perror("The queue doesn't exit or removed unexpectedly. ");
-          exit(EXIT_FAILURE);
-      }
-      else
-      {
-          perror("Unexpected error on msgrcv.");
-          exit(EXIT_FAILURE);
-      }
-*/
+
+  rcvmsg_victory(id_queue);
+
+  printf("Game Over.\n");
 }
 
 
@@ -167,4 +149,27 @@ int send_registration(int id_queue,resource rsc_wished[], int num_rsc_wished){
   printf("Done!\n");
 
   return 0;
+}
+
+void rcvmsg_victory(int id_queue) {
+  rsc_msg recived_msg;
+  long rcv_bytes = msgrcv(id_queue, &recived_msg, sizeof(rsc_msg) - sizeof(long), RES_REQ_TYPE, 0);
+  if(rcv_bytes > 0)
+  {
+    printf("I got: \n");
+  }
+  else if(errno == ENOMSG)
+  {
+    perror("No victories message ");
+  }
+  else if(errno == EINVAL || errno == EIDRM)
+  {
+      perror("The queue doesn't exit or removed unexpectedly. ");
+      exit(EXIT_FAILURE);
+  }
+  else
+  {
+      perror("Unexpected error on msgrcv.");
+      exit(EXIT_FAILURE);
+  }
 }
