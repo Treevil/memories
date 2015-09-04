@@ -102,12 +102,7 @@ typedef struct {
     int price;
 } resource;
 
-typedef struct 
-{
-    char resource[NAME_LEN];
-    int id_gambler[MAX_GAMBLER];
-    int num_gambler;
-} sorted_wish;
+
 
 
 typedef struct {
@@ -123,6 +118,13 @@ typedef struct{
     int num_resource;
     resource resource[MAX_RSC_GAMBLER];
 } wish;
+
+typedef struct 
+{
+    char resource[NAME_LEN];
+    int id_gambler[MAX_GAMBLER];
+    int num_gambler;
+} sorted_wish;
 
 typedef struct 
 {

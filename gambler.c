@@ -18,9 +18,24 @@ and the total cost.
 
 #include "header.h"
 
+int pid_process[MAX_RSC_GAMBLER];
+
 int queue_attachment();
 int send_registration(int id_queue, resource rsc_wished[], int num_rsc_wished);
 void rcvmsg_victory(int id_queue);
+
+
+void handler_int(int s)
+{
+  int i;
+  for(i=0;i<MAX_RSC_GAMBLER;i++)
+  {
+    if(pid_process[i])
+      kill(pid_process[i],SIGKILL);
+  }
+  exit(EXIT_SUCCESS);
+}
+
 
 int main(int argc, char const *argv[])
 {
@@ -37,8 +52,11 @@ int main(int argc, char const *argv[])
   resource rsc_wished[MAX_RSC_GAMBLER];
   int num_rsc_wished, id_queue, i;
 
-  int pid_process;
-  int gambler_budget = 2000;
+  int pid_process[MAX_RSC_GAMBLER];
+  int gambler_budget = 20000;
+
+  signal(SIGINT,handler_int);
+
   printf("\t\t*****************\n\t\t*   Gambler     *\n\t\t***************"
           "**\n\n\n\n");
   printf("My ID is°: %d\n", getpid() );
@@ -57,12 +75,12 @@ int main(int argc, char const *argv[])
     long rd_bytes = msgrcv(id_queue, &m2, sizeof(msg_alert) - sizeof(long), getpid(), 0);
     if (rd_bytes>0){
       if (m2.key_shm){
-        pid_process = fork();
-        if (pid_process == -1) {
+        pid_process[i] = fork();
+        if (pid_process[i] == -1) {
           perror("Error while generating tao agent... ");
           exit(EXIT_FAILURE);
         }
-        else if(!pid_process){
+        else if(!pid_process[i]){
           char id_shma[10], id_smpa[10], rsc_min_price[10],
             quantity[10], budget[10], id_queuea[10];
           sprintf(id_shma,"%d", m2.key_shm);
@@ -153,10 +171,15 @@ int send_registration(int id_queue,resource rsc_wished[], int num_rsc_wished){
 
 void rcvmsg_victory(int id_queue) {
   rsc_msg recived_msg;
-  long rcv_bytes = msgrcv(id_queue, &recived_msg, sizeof(rsc_msg) - sizeof(long), RES_REQ_TYPE, 0);
+  int i;
+  long rcv_bytes = msgrcv(id_queue, &recived_msg, sizeof(rsc_msg) - sizeof(long), getpid(), 0);
   if(rcv_bytes > 0)
   {
     printf("I got: \n");
+    for (i = 0; i < recived_msg.num_resource; i++)
+    printf("%s\t", recived_msg.data[i].name);
+    printf("%d\t", recived_msg.data[i].quantity);
+    printf("%d\n", recived_msg.data[i].price);
   }
   else if(errno == ENOMSG)
   {

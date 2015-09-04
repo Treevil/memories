@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
 	printf("Agent for %s is running!\n", nome_ris);
 	P(id_sem, 0);
 	
+
 	bet *o = (bet *)shmat(id_shm, NULL, 0);
 	if( (int) o == -1)
 	{
@@ -51,8 +52,10 @@ int main(int argc, char* argv[])
 	int i, j;
 	// am I the first?
 	if((o + 0) -> pid_gambler != getppid()) {
+
 		// Have I enough budget?
 		if ( budget > (o + 0)->price_each) {
+					printf("Per risorsa %s entro! %d\n",nome_ris, getppid() );
 			// Do I have already done a bet? If so, delete it!
 			for (i = 0; i < MAX_BET -1 ; i++){
 				if((o + i) -> pid_gambler == getppid()) {
@@ -67,9 +70,11 @@ int main(int argc, char* argv[])
 						(o + j)->quantity = temp[i].quantity ;
 						(o + j)->price_each = temp[i].price_each;
 					}
+					/*
 					(o + MAX_BET)->pid_gambler = -1;
 					(o + MAX_BET)->quantity = 0;
 					(o + MAX_BET)->price_each = 0;
+					*/
 				}
 			}
 			// Add new entry
@@ -93,6 +98,8 @@ int main(int argc, char* argv[])
 				(o + 0)->price_each	 = (o + 0)->price_each + 1;
 			}
 		}
+		printf("Risorsa: %s PID: %d, quantity: %d, price: %d\n", nome_ris, (o + 0)->pid_gambler,
+			(o + 0)->quantity, (o + 0)->price_each);
    V(id_sem, 0);
    // TODO: Wait Killer Message()
 	exit(EXIT_SUCCESS);
