@@ -176,10 +176,11 @@ void rcvmsg_victory(int id_queue) {
   if(rcv_bytes > 0)
   {
     printf("I got: \n");
-    for (i = 0; i < recived_msg.num_resource; i++)
-    printf("%s\t", recived_msg.data[i].name);
-    printf("%d\t", recived_msg.data[i].quantity);
-    printf("%d\n", recived_msg.data[i].price);
+    for (i = 0; i < recived_msg.num_resource; i++) {
+      printf("%s\n", recived_msg.data[i].name);
+      printf("->%d units\n ", recived_msg.data[i].quantity);
+      printf("->for %d $\n", recived_msg.data[i].price);
+    }
   }
   else if(errno == ENOMSG)
   {

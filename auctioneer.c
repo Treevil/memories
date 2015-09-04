@@ -239,7 +239,6 @@ void gambler_registration(int id_queue, wish gambler_wish[], int* num_gambler_wi
       else if(errno == ENOMSG)
       {
           printf("No registration in the queue... Time left': %d\n", timer);
-          sleep(1);
           timer--;
       }
       else if(errno == EINVAL || errno == EIDRM)
@@ -462,29 +461,50 @@ int send_victory(int id_queue, wish gambler_wish[], int num_gambler_wish){
   int i, j, attempts;
   rsc_msg msg_request;
 
-  for (j = 0; j < num_gambler_wish; j++){
-    msg_request.type = gambler_wish[i].pid_gambler;
-    msg_request.pid = gambler_wish[i].pid_gambler ;
-    msg_request.num_resource = gambler_wish[i].num_resource;
-    for (i = 0; i < gambler_wish[j].num_resource; i++){
-      msg_request.data[j] = gambler_wish[i].resource[j];
-      //msg_request.data[j].name = gambler_wish[i].resource[j].name;
-      //msg_request.data[j].quantity = gambler_wish[i].resource[j].quantity;
-      //msg_request.data[j].price = gambler_wish[i].resource[j].price;
+  printf("Start DEBUG:\n");
+    printf("%d\n", num_rsc_owned);
+    
+    for(i = 0; i < num_gambler_wish; i++) {
+      printf("PID: %d\n", gambler_wish[i].pid_gambler );
+      printf("Numer of Resource: %d\n", gambler_wish[i].num_resource);
+      for(int j = 0; j < gambler_wish[i].num_resource; j++)
+        printf("-> %d %s for %d€ each\n",gambler_wish[i].resource[j].quantity, gambler_wish[i].resource[j].name, gambler_wish[i].resource[j].price);
+      
     }
-  
+    printf("\n\nNum wish: %d  ", num_gambler_wish);
+  for (j = 0; j < num_gambler_wish; j++){
+    
+    printf("Index : %d\n", j);
+    msg_request.type = gambler_wish[j].pid_gambler;
+    msg_request.pid = gambler_wish[j].pid_gambler ;
+    msg_request.num_resource = gambler_wish[j].num_resource;
+    for (i = 0; i < gambler_wish[j].num_resource; i++){
+      strcpy(msg_request.data[i].name, gambler_wish[j].resource[i].name);
+      msg_request.data[i].quantity = gambler_wish[j].resource[i].quantity;
+      msg_request.data[i].price = gambler_wish[j].resource[i].price;
+    }
+
+    for (j = 0; j < msg_request.num_resource; j++){
+      printf("%s -> %d, %d $\n", msg_request.data[j].name, 
+        msg_request.data[j].quantity, msg_request.data[j].price);
+    }
+    getchar();
+
     //invia messaggio con le risorse
     attempts = 0;
     while(msgsnd(id_queue, &msg_request, sizeof(rsc_msg) - sizeof(long), 0)==-1)
     {
-      if (attempts == MAX_GAMBLER){
+      /*if (attempts == MAX_GAMBLER){
         printf("FAIL.. \n");
         exit(EXIT_FAILURE);
-      }
-      perror("Trying to send registration message... \n");
-      sleep(0.1);
+      }*/
+      perror("Trying to send victory message... \n");
+      sleep(1);
       attempts++;
     }
+    printf("Sono fuori dal while!!! LOLOLLOLOLO\n");
+    getchar();
+
   }
   return 0;
 }
