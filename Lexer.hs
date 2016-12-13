@@ -23,7 +23,7 @@ lexer (x : xs)  | x == '('          = Opar  : lexer xs
                 | otherwise         = error $ "carattere inaspettato " ++ show x  
 
 lexerNum     :: Char -> String -> [Token]
-lexerNum n ns = let (number, tokens) = span isDigit ns
+lexerNum n ns = let (number, tokens) = span (\x->isDigit x || x=='.') ns
                 in Num (read (n:number)) : lexer tokens
 
 -- parser--
