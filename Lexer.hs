@@ -30,8 +30,8 @@ lexerNum n ns = let (number, tokens) = span (\x->isDigit x || x=='.') ns
 
 data Tree = SumNode Token Tree Tree
           | ProdNode Token Tree Tree
-          | UnaryNode Token Tree
-          | NumNode Double
+          | SignedNum Token Tree
+          | NumLeaf Double
     deriving Show
 
 match :: [Token] -> Token
@@ -40,7 +40,7 @@ match (c:cs) = c
 
 move :: [Token] -> [Token]
 move [] = error "Stringa finita"
-move (t:ts) = ts
+move (t:ts) = ts      x
 
 expression :: [Token] -> (Tree, [Token])
 expression token = 
@@ -72,13 +72,13 @@ term token =
 factor :: [Token] -> (Tree, [Token])
 factor token = 
    case match token of
-      (Num x)     -> (NumNode x, move token)
+      (Num x)     -> (NumLeaf x, move token)
       (Plus)      -> 
             let (factorTree, factorToken) = factor (move token) 
-            in (UnaryNode Plus factorTree, factorToken)
+            in (SignedNum Plus factorTree, factorToken)
       (Minus)     -> 
             let (factorTree, factorToken) = factor (move token) 
-            in (UnaryNode Minus factorTree, factorToken)
+            in (SignedNum Minus factorTree, factorToken)
       (Opar)      -> 
          let (expTree, expToken) = expression (move token)
          in
@@ -98,29 +98,29 @@ parse token = let (tree, expToken) = expression token
 ---- evaluator ----
 
 evaluate :: Tree -> Double
-evaluate (SumNode op left right) = 
-    let lft = evaluate left
-        rgt = evaluate right
+evaluate (SumNode operator left right) = 
+    let leftTree = evaluate left
+        rightTree = evaluate right
     in
-        case op of
-          Plus  -> lft + rgt
-          Minus -> lft - rgt
+        case operator of
+          Plus  -> leftTree + rightTree
+          Minus -> leftTree - rightTree
 
-evaluate (ProdNode op left right) = 
-    let lft = evaluate left
-        rgt = evaluate right
+evaluate (ProdNode operator left right) = 
+    let leftTree = evaluate left
+        rightTree = evaluate right
     in
-        case op of
-          Mult -> lft * rgt
-          Div   -> lft / rgt
+        case operator of
+          Mult -> leftTree * rightTree
+          Div  -> leftTree / rightTree
 
-evaluate (UnaryNode op tree) =
+evaluate (SignedNum operator tree) =
     let x = evaluate tree 
-    in case op of
+    in case operator of
          Plus  -> x
          Minus -> -x
 
-evaluate (NumNode x) = x
+evaluate (NumLeaf x) = x
 
 
 lppParser :: String -> Double
