@@ -1,13 +1,6 @@
 module Slide2 where
 
 {-- 
-
-	Author: Devalle Trevor
-	Number: 2/ 17
-
---}
-
-{-- 
 	1) Fix the syntax errors in the program below.
 	  
   	  N = a 'div' length xs
@@ -29,18 +22,21 @@ n   = a `div` length xs
 	the last element of a list can be defined using
 	the functions introduced in this lecture.
 
+		3) another possible definition?
+
+
 --}
 
 mylast    :: [a] -> a
 mylast xs  = head (reverse xs)
 
-{-- 
-	
-	3) Can you think of another possible definition?
-
---}
 mylast2   :: [a] -> a
 mylast2 xs = xs !! (length xs - 1)
+
+mylast3 :: [a] -> [a]
+mylast3 [x] = []
+mylast3 (x:xs) = tail xs
+
 
 {-- 
 	

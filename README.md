@@ -1,23 +1,23 @@
 #Consegna LPP
 
-Slide:
-1
-2
-3
-4
-5
-6
-7
+Haskell:
+4 (Dubbio)
+5 (6)
+7 (completare)
 8
-9
-10
+
+17
+
+
+
+
+Theory: 
 11
 12
 13
 14
 15
 16
-17
 
 Esercitazioni:
 1
